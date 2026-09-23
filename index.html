@@ -25,7 +25,7 @@
     </nav>
     <div class="header-actions">
       <a class="link-button ghost desktop-only" href="crm.html">Ver CRM</a>
-      <button class="link-button primary" data-open-booking>Agenda tu valoración</button>
+      <button class="link-button primary" data-open-booking>Solicitar valoración</button>
     </div>
   </header>
 
@@ -36,10 +36,10 @@
       <div class="section-shell hero-content">
         <div class="hero-card hero-entrance">
           <p class="proposal-eyebrow">Propuesta digital para Selfie Dental</p>
-          <h1>Del primer interés a una consulta confirmada.</h1>
-          <p class="hero-lead">Una experiencia de captación que orienta al paciente, prepara el siguiente contacto y da a recepción una acción clara para continuar.</p>
+          <h1>Tu valoración empieza con una solicitud clara.</h1>
+          <p class="hero-lead">Cuéntanos lo que necesitas y el equipo confirmará la disponibilidad contigo por WhatsApp.</p>
           <div class="hero-actions">
-            <button class="link-button primary large" data-open-booking>Agenda tu valoración</button>
+            <button class="link-button primary large" data-open-booking>Solicitar valoración</button>
             <a class="link-button white large" href="#proceso">Ver cómo funciona</a>
           </div>
           <div class="hero-flow-chip" aria-label="Flujo de propuesta: nueva solicitud, contacto preparado, recepción prioriza">
@@ -52,8 +52,8 @@
     <section class="system-section reveal-section" id="proceso" aria-labelledby="systemTitle">
       <div class="section-shell">
         <div class="system-heading">
-          <div><p class="kicker">Así funciona</p><h2 id="systemTitle">Una recepción que no pierde el hilo.</h2></div>
-          <p>La propuesta convierte una solicitud en contexto útil para que el equipo sepa qué atender, por qué y cuál es el siguiente paso.</p>
+          <div><p class="kicker">Propuesta demo</p><h2 id="systemTitle">Un flujo de seguimiento para el equipo.</h2></div>
+          <p>Esta vista muestra cómo una solicitud podría llegar con contexto a recepción. No reemplaza la atención de la clínica.</p>
         </div>
         <div class="system-journey">
           <article class="journey-step live"><div class="journey-icon" aria-hidden="true">⌁</div><span class="step-badge">Live demo</span><h3>Página web</h3><p>La persona elige su necesidad y deja una solicitud de valoración.</p><small>Estado: demo web activa</small></article>
@@ -100,7 +100,7 @@
         <ul class="clean-list">
           <li><span></span>Imagen de marca coherente con el color lila y la estética de la clínica.</li>
           <li><span></span>Doctora y experiencia visual mejor representadas.</li>
-          <li><span></span>Flujo pensado para captar solicitudes, agendar y dar seguimiento.</li>
+          <li><span></span>Flujo pensado para captar solicitudes y dar seguimiento.</li>
         </ul>
         <div class="owner-badges">
           <span>Diseño de sonrisa</span>
@@ -146,12 +146,53 @@
     <section class="conversion section-shell">
       <div class="conversion-card">
         <div>
-          <p class="kicker">CTA principal</p>
-          <h2>Agenda tu valoración y empieza tu proceso con una atención más clara y ordenada.</h2>
+          <p class="kicker">Primer paso</p>
+          <h2>Solicita tu valoración. El equipo te confirmará disponibilidad por WhatsApp.</h2>
         </div>
         <div class="hero-actions align-right">
-          <button class="link-button white large" data-open-booking>Quiero agendar</button>
+          <a class="link-button white large" href="#solicitud">Completar solicitud</a>
           <a class="link-button text-link" href="crm.html">Ver CRM demo</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="confidence-section section-shell" aria-labelledby="confidenceTitle">
+      <div>
+        <p class="kicker">Antes de solicitar</p>
+        <h2 id="confidenceTitle">Una primera orientación, con el equipo.</h2>
+      </div>
+      <div class="faq-list">
+        <details open><summary>¿Qué ocurre después de enviar la solicitud?</summary><p>El equipo revisa tus datos y te contacta por WhatsApp para confirmar si hay disponibilidad.</p></details>
+        <details><summary>¿La fecha y el horario quedan reservados?</summary><p>No. Son una preferencia para orientar el contacto; la disponibilidad debe confirmarse con el equipo.</p></details>
+        <details><summary>¿Este formulario reemplaza una evaluación clínica?</summary><p>No. La valoración y cualquier orientación clínica se realizan con el equipo durante la atención.</p></details>
+      </div>
+    </section>
+
+    <section class="request-section" id="solicitud" aria-labelledby="requestTitle">
+      <div class="section-shell request-layout">
+        <div class="request-copy">
+          <p class="kicker">Solicitud de valoración</p>
+          <h2 id="requestTitle">Cuéntanos cómo podemos orientarte.</h2>
+          <p>Comparte una fecha y un horario de preferencia. El equipo confirma la disponibilidad por WhatsApp; esta solicitud no es una cita confirmada.</p>
+          <p class="demo-disclosure">Demo local: al enviar, los datos se guardan solo en este navegador para mostrar el flujo.</p>
+        </div>
+        <div class="request-panel">
+          <form class="form-grid request-form" data-request-form data-success-target="inlineSuccess">
+            <div class="form-field"><label for="inlineName">Nombre completo</label><input id="inlineName" required name="name" type="text" autocomplete="name" placeholder="Tu nombre" /></div>
+            <div class="form-field"><label for="inlinePhone">WhatsApp</label><input id="inlinePhone" required name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXX" /></div>
+            <div class="form-field"><label for="inlineIntent">¿Qué te gustaría resolver?</label><select id="inlineIntent" name="intent" required><option value="">Selecciona una opción</option><option>Diseño de sonrisa</option><option>Ortodoncia</option><option>Limpieza dental</option><option>Restauración dental</option><option>Odontopediatría</option><option>Valoración por molestia</option><option>No estoy seguro/a</option></select></div>
+            <div class="form-field"><label for="inlineDate">Fecha de preferencia</label><input id="inlineDate" name="preferredDate" type="date" required /></div>
+            <div class="form-field"><label for="inlineTime">Horario de preferencia</label><select id="inlineTime" name="time" required><option value="">Selecciona una opción</option><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+            <div class="form-field wide"><label for="inlineNotes">Notas <span>(opcional)</span></label><textarea id="inlineNotes" name="notes" rows="4" placeholder="Cuéntanos un poco más si lo deseas"></textarea></div>
+            <fieldset class="wide consent-field"><legend>Confirmación requerida</legend><label for="inlineConsent"><input id="inlineConsent" name="consent" type="checkbox" required /> Entiendo que esta es una demo local, que mis datos solo se guardan en este navegador y que la solicitud no confirma una cita.</label></fieldset>
+            <div class="wide form-feedback" data-form-error role="alert" aria-live="assertive"></div>
+            <div class="wide dialog-actions"><button class="link-button primary" type="submit">Guardar solicitud</button></div>
+            <div class="wide form-status" data-form-status role="status" aria-live="polite" aria-atomic="true"></div>
+          </form>
+          <section class="request-success" id="inlineSuccess" hidden tabindex="-1" aria-labelledby="inlineSuccessTitle">
+            <p class="kicker">Solicitud guardada</p><h3 id="inlineSuccessTitle">Tu solicitud está lista en esta demo.</h3><p>La disponibilidad aún debe confirmarse con el equipo. Puedes abrir WhatsApp cuando quieras con un mensaje preparado.</p>
+            <a class="link-button primary" data-whatsapp-link target="_blank" rel="noreferrer">Abrir WhatsApp con mensaje preparado</a>
+          </section>
         </div>
       </div>
     </section>
@@ -185,9 +226,8 @@
       <p>Propuesta demo para Selfie Dental · página de captación + WhatsApp listo para integrar + panel operativo local.</p>
     </div>
     <div class="footer-meta">
-      <span>Instagram: @selfie_dental</span>
-      <span>Facebook: Selfie Dental</span>
       <span>CRM demo incluido</span>
+      <span>Datos demostrativos</span>
     </div>
   </footer>
 
@@ -195,54 +235,32 @@
     <div class="booking-shell">
       <div class="dialog-top">
         <div>
-          <small>Agendamiento</small>
+          <small>Solicitud de valoración</small>
           <h2>Solicita tu valoración</h2>
         </div>
         <button class="icon-close" type="button" id="closeBookingDialog" aria-label="Cerrar">×</button>
       </div>
       <div id="bookingFormStep">
       <p class="dialog-lead">Completa tus datos. La solicitud se guardará solo en esta demo local; luego podrás abrir WhatsApp con un mensaje preparado.</p>
-      <form class="form-grid" id="bookingForm">
-        <label>Nombre completo<input required name="name" type="text" placeholder="Tu nombre" /></label>
-        <label>WhatsApp<input required name="phone" type="tel" placeholder="09XXXXXXXX" /></label>
-        <label>¿Qué te gustaría resolver?
-          <select name="intent">
-            <option>Diseño de sonrisa</option>
-            <option>Ortodoncia</option>
-            <option>Limpieza dental</option>
-            <option>Restauración dental</option>
-            <option>Odontopediatría</option>
-            <option>Valoración por molestia</option>
-            <option>No estoy seguro/a</option>
-          </select>
-        </label>
-        <label>Fecha tentativa<input name="preferredDate" type="date" /></label>
-        <label>Horario preferido
-          <select name="time">
-            <option>Mañana</option>
-            <option>Tarde</option>
-            <option>Noche</option>
-          </select>
-        </label>
-        <label>¿Es tu primera visita?
-          <select name="firstVisit">
-            <option>Sí</option>
-            <option>No</option>
-          </select>
-        </label>
-        <label class="wide">Cuéntanos un poco más<textarea name="notes" rows="4" placeholder="Ej: quiero una valoración estética, tengo una molestia, etc."></textarea></label>
-        <div class="wide form-note">Esta versión demo guarda tu solicitud solo en localStorage para mostrar el flujo del panel operativo.</div>
-        <div class="wide dialog-actions">
-          <button class="link-button primary" type="submit">Enviar solicitud</button>
-        </div>
+      <form class="form-grid request-form" id="bookingForm" data-request-form data-success-target="bookingSuccess">
+        <div class="form-field"><label for="modalName">Nombre completo</label><input id="modalName" required name="name" type="text" autocomplete="name" placeholder="Tu nombre" /></div>
+        <div class="form-field"><label for="modalPhone">WhatsApp</label><input id="modalPhone" required name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXX" /></div>
+        <div class="form-field"><label for="modalIntent">¿Qué te gustaría resolver?</label><select id="modalIntent" name="intent" required><option value="">Selecciona una opción</option><option>Diseño de sonrisa</option><option>Ortodoncia</option><option>Limpieza dental</option><option>Restauración dental</option><option>Odontopediatría</option><option>Valoración por molestia</option><option>No estoy seguro/a</option></select></div>
+        <div class="form-field"><label for="modalDate">Fecha de preferencia</label><input id="modalDate" name="preferredDate" type="date" required /></div>
+        <div class="form-field"><label for="modalTime">Horario de preferencia</label><select id="modalTime" name="time" required><option value="">Selecciona una opción</option><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+        <div class="form-field wide"><label for="modalNotes">Notas <span>(opcional)</span></label><textarea id="modalNotes" name="notes" rows="4" placeholder="Cuéntanos un poco más si lo deseas"></textarea></div>
+        <fieldset class="wide consent-field"><legend>Confirmación requerida</legend><label for="modalConsent"><input id="modalConsent" name="consent" type="checkbox" required /> Entiendo que esta es una demo local, que mis datos solo se guardan en este navegador y que la solicitud no confirma una cita.</label></fieldset>
+        <div class="wide form-feedback" data-form-error role="alert" aria-live="assertive"></div>
+        <div class="wide dialog-actions"><button class="link-button primary" type="submit">Guardar solicitud</button></div>
+        <div class="wide form-status" data-form-status role="status" aria-live="polite" aria-atomic="true"></div>
       </form>
       </div>
       <section class="booking-success" id="bookingSuccess" hidden aria-labelledby="bookingSuccessTitle">
         <p class="kicker">Solicitud guardada en la demo</p>
         <h3 id="bookingSuccessTitle" tabindex="-1">Tu siguiente paso está listo.</h3>
-        <p>Abre WhatsApp cuando quieras con un mensaje prellenado. Esta acción no envía nada automáticamente y la integración aún no está conectada.</p>
+        <p>La disponibilidad aún debe confirmarse con el equipo. Abre WhatsApp cuando quieras con un mensaje preparado; esta acción no envía nada automáticamente.</p>
         <div class="dialog-actions">
-          <a class="link-button primary" id="continueWhatsApp" target="_blank" rel="noreferrer">Continuar a WhatsApp con mensaje preparado</a>
+          <a class="link-button primary" id="continueWhatsApp" data-whatsapp-link target="_blank" rel="noreferrer">Abrir WhatsApp con mensaje preparado</a>
           <button class="link-button ghost" type="button" id="closeSuccess">Volver a la página</button>
         </div>
       </section>

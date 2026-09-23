@@ -43,7 +43,6 @@ function closeDialog(dialog) { if (dialog && dialog.open) dialog.close(); }
 
 const bookingDialog = document.getElementById('bookingDialog');
 const bookingForm = document.getElementById('bookingForm');
-const continueWhatsAppBtn = document.getElementById('continueWhatsApp');
 const bookingFormStep = document.getElementById('bookingFormStep');
 const bookingSuccess = document.getElementById('bookingSuccess');
 const bookingStatus = document.getElementById('bookingStatus');
@@ -51,7 +50,11 @@ const bookingStatus = document.getElementById('bookingStatus');
 function resetBookingDialog() {
   bookingFormStep.hidden = false;
   bookingSuccess.hidden = true;
-  continueWhatsAppBtn?.removeAttribute('href');
+  bookingForm.hidden = false;
+  bookingForm?.reset();
+  bookingForm?.querySelector('[data-form-error]').replaceChildren();
+  bookingForm?.querySelector('[data-form-status]').replaceChildren();
+  bookingForm?.querySelectorAll('[data-whatsapp-link]').forEach((link) => link.removeAttribute('href'));
 }
 
 document.querySelectorAll('[data-open-booking]').forEach(btn => btn.addEventListener('click', () => { resetBookingDialog(); openDialog(bookingDialog); }));
@@ -73,29 +76,72 @@ document.querySelectorAll('[data-intent]').forEach(btn => {
   });
 });
 
-bookingForm?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const formData = new FormData(bookingForm);
-  const payload = Object.fromEntries(formData.entries());
-  const data = getCRMData();
-  data.leads.unshift({
-    id: `LD-${Date.now().toString().slice(-6)}`,
-    name: payload.name,
-    phone: payload.phone,
-    intent: payload.intent,
-    stage: 'new',
-    notes: `${payload.notes || ''} · Fecha tentativa: ${payload.preferredDate || 'No definida'} · Horario: ${payload.time || 'No definido'} · Primera visita: ${payload.firstVisit || 'Sí'}`,
-    createdAt: new Date().toISOString().slice(0, 10)
+function buildWhatsAppLink(payload) {
+  const request = `Hola, soy ${payload.name}. Solicité una valoración por ${payload.intent}. Mi fecha de preferencia es ${payload.preferredDate} y mi horario de preferencia es ${payload.time}. Entiendo que la disponibilidad debe confirmarse.`;
+  return `https://wa.me/593992459649?text=${encodeURIComponent(request)}`;
+}
+
+function setFormPending(form, isPending) {
+  const button = form.querySelector('button[type="submit"]');
+  if (!button) return;
+  button.disabled = isPending;
+  button.textContent = isPending ? 'Guardando solicitud…' : 'Guardar solicitud';
+  button.setAttribute('aria-busy', String(isPending));
+}
+
+async function submitRequest(form) {
+  const error = form.querySelector('[data-form-error]');
+  const status = form.querySelector('[data-form-status]');
+  error.replaceChildren();
+  status.replaceChildren();
+
+  if (!form.checkValidity()) {
+    error.textContent = 'Revisa los campos obligatorios y confirma la información de la demo.';
+    form.reportValidity();
+    return;
+  }
+
+  const payload = Object.fromEntries(new FormData(form).entries());
+  setFormPending(form, true);
+  status.textContent = 'Guardando solicitud…';
+
+  try {
+    await new Promise((resolve) => window.setTimeout(resolve, 280));
+    const data = getCRMData();
+    data.leads.unshift({
+      id: `LD-${Date.now().toString().slice(-6)}`,
+      name: payload.name.trim(),
+      phone: payload.phone.trim(),
+      intent: payload.intent,
+      stage: 'new',
+      notes: `${payload.notes || 'Sin notas'} · Fecha de preferencia: ${payload.preferredDate} · Horario de preferencia: ${payload.time} · Solicitud demo; disponibilidad pendiente de confirmar.`,
+      createdAt: new Date().toISOString().slice(0, 10)
+    });
+    setCRMData(data);
+    const success = document.getElementById(form.dataset.successTarget);
+    success?.querySelectorAll('[data-whatsapp-link]').forEach((link) => { link.href = buildWhatsAppLink(payload); });
+    form.hidden = true;
+    if (form === bookingForm) bookingFormStep.hidden = true;
+    if (success) {
+      success.hidden = false;
+      success.focus();
+    }
+    const message = 'Solicitud guardada solo en esta demo local. La disponibilidad debe confirmarse con el equipo.';
+    status.textContent = message;
+    bookingStatus.textContent = message;
+    showToast('Solicitud guardada en la demo local.');
+  } catch (submissionError) {
+    error.textContent = 'No se pudo guardar la solicitud en este navegador. Revisa el almacenamiento local e inténtalo de nuevo.';
+  } finally {
+    setFormPending(form, false);
+  }
+}
+
+document.querySelectorAll('[data-request-form]').forEach((form) => {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    submitRequest(form);
   });
-  setCRMData(data);
-  const message = encodeURIComponent(`Hola, soy ${payload.name}. Acabo de solicitar una valoración por ${payload.intent}${payload.preferredDate ? ` para el ${payload.preferredDate}` : ''}.`);
-  continueWhatsAppBtn.href = `https://wa.me/593992459649?text=${message}`;
-  bookingForm.reset();
-  bookingFormStep.hidden = true;
-  bookingSuccess.hidden = false;
-  bookingStatus.textContent = 'Solicitud guardada en la demo local. Puedes continuar a WhatsApp con un mensaje preparado.';
-  continueWhatsAppBtn?.focus();
-  showToast('Solicitud guardada en la demo local.');
 });
 
 const revealObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries, observer) => {

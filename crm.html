@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Selfie Dental — CRM demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="crm-body">
+  <div class="crm-banner"><strong>Demo conceptual</strong><span>Los registros de ejemplo son simulados. Las solicitudes creadas desde la web se guardan solo en este navegador.</span></div>
+  <div class="crm-layout">
+    <aside class="crm-sidebar">
+      <a href="index.html" class="crm-brand"><img src="assets/logo.webp" alt="Selfie Dental" /><span>Selfie Dental</span></a>
+      <nav>
+        <button class="side-item active"><span class="side-icon">⌂</span>Resumen</button>
+        <button class="side-item"><span class="side-icon">◫</span>Solicitudes</button>
+        <button class="side-item"><span class="side-icon">◷</span>Citas</button>
+        <button class="side-item"><span class="side-icon">◎</span>Seguimientos</button>
+        <button class="side-item"><span class="side-icon">◌</span>Pacientes</button>
+      </nav>
+      <div class="side-bottom"><a href="index.html">← Volver a la web</a></div>
+    </aside>
+
+    <main class="crm-main">
+      <header class="crm-topbar">
+        <div><p>Panel de atención</p><h1>Hoy en Selfie Dental</h1></div>
+        <div class="crm-actions"><button class="link-button ghost" id="resetDemo">Restablecer demo</button><a class="link-button primary" href="index.html#tratamientos">Nueva solicitud</a></div>
+      </header>
+
+      <section class="metrics-row" aria-label="Métricas de demo">
+        <article><small>Solicitudes nuevas</small><strong id="metricNew">0</strong><span>requieren revisión</span></article>
+        <article><small>Citas por confirmar</small><strong>2</strong><span>datos simulados</span></article>
+        <article><small>Seguimientos</small><strong>3</strong><span>pendientes de demo</span></article>
+        <article><small>Tiempo de respuesta</small><strong>—</strong><span>se habilita con datos reales</span></article>
+      </section>
+
+      <section class="crm-section">
+        <div class="crm-section-head"><div><p class="kicker">Pipeline</p><h2>Solicitudes y citas</h2></div><div class="filter-chip">Esta semana</div></div>
+        <div class="pipeline" id="pipeline"></div>
+      </section>
+
+      <section class="crm-bottom-grid">
+        <div class="crm-section recent-section">
+          <div class="crm-section-head"><div><p class="kicker">Actividad</p><h2>Solicitudes recientes</h2></div></div>
+          <div class="lead-table" id="leadTable"></div>
+        </div>
+        <aside class="crm-section focus-panel" id="leadDetail">
+          <p class="kicker">Ficha rápida</p>
+          <div class="empty-detail"><strong>Selecciona una solicitud</strong><span>Verás aquí contacto, origen, interés y seguimiento.</span></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <script src="crm.js"></script>
+</body>
+</html>

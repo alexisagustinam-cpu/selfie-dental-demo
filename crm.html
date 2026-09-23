@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="crm-body">
-  <div class="crm-banner">Demo local · datos de ejemplo · sin integraciones activas</div>
+  <div class="crm-banner">Demo local con datos de ejemplo · sin integraciones activas</div>
   <div class="crm-layout">
     <aside class="crm-sidebar">
       <div class="crm-brand">
-        <img src="assets/logo-symbol.webp" width="1010" height="710" alt="Selfie Dental" />
+        <img src="assets/selfie-dental-mark.webp" width="1100" height="720" alt="Selfie Dental" />
         <span>Selfie Dental CRM</span>
       </div>
       <nav>
@@ -42,20 +42,25 @@
       </div>
 
       <section id="dashboardView" class="view-section">
-        <div class="integration-notice" role="status">
-          <span class="signal-dot" aria-hidden="true"></span>
-          <div><strong>Modo demo local</strong><p>Las solicitudes se guardan en este navegador. WhatsApp está listo para integrar, pero no está conectado.</p></div>
-        </div>
-        <div class="metrics-row" id="metricsRow"></div>
+        <section class="now-action" aria-labelledby="nowActionTitle">
+          <div class="now-action-copy"><span class="now-label">Atiende ahora</span><h2 id="nowActionTitle">Daniela R. necesita un primer contacto.</h2><p>Primera visita · Limpieza dental · solicitud nueva de hoy</p></div>
+          <div class="now-action-context"><span>Prioridad</span><strong>Alta</strong><small>Acción siguiente: registrar primer contacto</small></div>
+          <button class="link-button white" id="focusPriorityBtn">Ver solicitud</button>
+        </section>
         <div class="crm-bottom-grid">
           <section class="crm-section">
-            <div class="crm-section-head"><h2>Solicitudes por atender</h2><span class="demo-chip">Datos demo</span></div>
+            <div class="crm-section-head"><h2>Cola de atención</h2><span class="demo-chip">Ordenada por prioridad</span></div>
             <div id="recentLeads" class="lead-table"></div>
           </section>
           <section class="crm-section">
-            <div class="crm-section-head"><h2>Siguiente acción</h2><span class="demo-chip">Datos demo</span></div>
+            <div class="crm-section-head"><h2>Contexto y próxima acción</h2></div>
             <div id="leadDetail" class="empty-detail"><strong>Elige una solicitud</strong><span>Revisa su contexto y marca la acción operativa que corresponda.</span></div>
           </section>
+        </div>
+        <div class="metrics-row" id="metricsRow"></div>
+        <div class="integration-notice integration-subtle" role="status">
+          <span class="signal-dot" aria-hidden="true"></span>
+          <div><strong>Modo demo local</strong><p>Las solicitudes se guardan en este navegador. WhatsApp está listo para integrar, pero no está conectado.</p></div>
         </div>
       </section>
 

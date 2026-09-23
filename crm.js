@@ -37,7 +37,7 @@ function getData() {
 }
 function setData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 let state = getData();
-let selectedLeadId = state.leads[0]?.id || null;
+let selectedLeadId = (state.leads.find(lead => lead.name === 'Daniela R.') || state.leads.find(lead => lead.stage === 'new') || state.leads[0])?.id || null;
 
 function showToast(message) {
   const toast = document.getElementById('toast');
@@ -229,6 +229,13 @@ function switchView(view) {
 }
 
 document.querySelectorAll('.side-item').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+$('focusPriorityBtn')?.addEventListener('click', () => {
+  const priorityLead = state.leads.find(lead => lead.name === 'Daniela R.') || state.leads.find(lead => lead.stage === 'new') || state.leads[0];
+  if (!priorityLead) return;
+  selectedLeadId = priorityLead.id;
+  renderLeadDetail();
+  document.getElementById('leadDetail')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+});
 $('newLeadBtn').addEventListener('click', () => openDialog('leadDialog'));
 $('newAppointmentBtn').addEventListener('click', () => openDialog('appointmentDialog'));
 $('newTaskBtn').addEventListener('click', () => openDialog('taskDialog'));

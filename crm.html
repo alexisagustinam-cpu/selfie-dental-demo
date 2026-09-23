@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="crm-body">
-  <div class="crm-banner">Demo funcional · Selfie Dental CRM</div>
+  <div class="crm-banner">Demo local · datos de ejemplo · sin integraciones activas</div>
   <div class="crm-layout">
     <aside class="crm-sidebar">
       <div class="crm-brand">
-        <img src="assets/logo-symbol.png" alt="Selfie Dental" />
+        <img src="assets/logo-symbol.webp" width="1010" height="710" alt="Selfie Dental" />
         <span>Selfie Dental CRM</span>
       </div>
       <nav>
@@ -31,8 +31,8 @@
     <main class="crm-main">
       <div class="crm-topbar">
         <div>
-          <p>Panel operativo de la propuesta</p>
-          <h1 id="viewTitle">Dashboard</h1>
+          <p>Panel operativo propuesto</p>
+          <h1 id="viewTitle">Prioridades de hoy</h1>
         </div>
         <div class="crm-actions">
           <button class="link-button ghost" id="exportDataBtn">Exportar JSON</button>
@@ -42,15 +42,19 @@
       </div>
 
       <section id="dashboardView" class="view-section">
+        <div class="integration-notice" role="status">
+          <span class="signal-dot" aria-hidden="true"></span>
+          <div><strong>Modo demo local</strong><p>Las solicitudes se guardan en este navegador. WhatsApp está listo para integrar, pero no está conectado.</p></div>
+        </div>
         <div class="metrics-row" id="metricsRow"></div>
         <div class="crm-bottom-grid">
           <section class="crm-section">
-            <div class="crm-section-head"><h2>Leads recientes</h2></div>
+            <div class="crm-section-head"><h2>Solicitudes por atender</h2><span class="demo-chip">Datos demo</span></div>
             <div id="recentLeads" class="lead-table"></div>
           </section>
           <section class="crm-section">
-            <div class="crm-section-head"><h2>Detalle</h2></div>
-            <div id="leadDetail" class="empty-detail"><strong>Selecciona un lead</strong><span>Haz clic en cualquier lead para ver su detalle.</span></div>
+            <div class="crm-section-head"><h2>Siguiente acción</h2><span class="demo-chip">Datos demo</span></div>
+            <div id="leadDetail" class="empty-detail"><strong>Elige una solicitud</strong><span>Revisa su contexto y marca la acción operativa que corresponda.</span></div>
           </section>
         </div>
       </section>
@@ -98,10 +102,10 @@
       <section id="settingsView" class="view-section hidden">
         <div class="full-width-grid crm-bottom-grid">
           <section class="crm-section">
-            <div class="crm-section-head"><h2>Canales conectados</h2></div>
+            <div class="crm-section-head"><h2>Estado de canales</h2></div>
             <div class="detail-list">
               <div class="detail-row"><span>Sitio web</span><strong>Activo</strong></div>
-              <div class="detail-row"><span>WhatsApp</span><strong>Listo para integrar</strong></div>
+              <div class="detail-row"><span>Asistente de WhatsApp</span><strong>Listo para integrar · no conectado</strong></div>
               <div class="detail-row"><span>Base de pacientes</span><strong>Demo local</strong></div>
             </div>
             <p class="helper-text">Aquí podrían ir integraciones reales con WhatsApp, usuarios, permisos, recordatorios y automatizaciones.</p>
@@ -174,7 +178,7 @@
         <label>Canal
           <select name="channel">
             <option>Web</option>
-            <option>WhatsApp</option>
+            <option>WhatsApp preparado (sin integrar)</option>
             <option>Manual</option>
           </select>
         </label>
@@ -206,7 +210,7 @@
     </div>
   </dialog>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script src="crm.js"></script>
 </body>
 </html>

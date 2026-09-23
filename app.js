@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'selfieDentalCRMData';
+document.documentElement.classList.add('js');
 
 const seedData = {
   leads: [
@@ -7,10 +8,10 @@ const seedData = {
     { id: 'LD-1003', name: 'Daniela R.', phone: '0979981122', intent: 'Limpieza dental', stage: 'new', notes: 'Primera visita.', createdAt: '2026-09-22' }
   ],
   appointments: [
-    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'WhatsApp' }
+    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'Registro demo' }
   ],
   tasks: [
-    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Enviar recordatorio por WhatsApp.' }
+    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Preparar el recordatorio para enviar por el canal elegido.' }
   ]
 };
 
@@ -43,17 +44,29 @@ function closeDialog(dialog) { if (dialog && dialog.open) dialog.close(); }
 const bookingDialog = document.getElementById('bookingDialog');
 const bookingForm = document.getElementById('bookingForm');
 const continueWhatsAppBtn = document.getElementById('continueWhatsApp');
+const bookingFormStep = document.getElementById('bookingFormStep');
+const bookingSuccess = document.getElementById('bookingSuccess');
+const bookingStatus = document.getElementById('bookingStatus');
 
-document.querySelectorAll('[data-open-booking]').forEach(btn => btn.addEventListener('click', () => openDialog(bookingDialog)));
-document.getElementById('closeBookingDialog')?.addEventListener('click', () => closeDialog(bookingDialog));
+function resetBookingDialog() {
+  bookingFormStep.hidden = false;
+  bookingSuccess.hidden = true;
+  continueWhatsAppBtn?.removeAttribute('href');
+}
+
+document.querySelectorAll('[data-open-booking]').forEach(btn => btn.addEventListener('click', () => { resetBookingDialog(); openDialog(bookingDialog); }));
+document.getElementById('closeBookingDialog')?.addEventListener('click', () => { closeDialog(bookingDialog); resetBookingDialog(); });
+document.getElementById('closeSuccess')?.addEventListener('click', () => { closeDialog(bookingDialog); resetBookingDialog(); });
 bookingDialog?.addEventListener('click', (e) => {
   const rect = bookingDialog.getBoundingClientRect();
   const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-  if (!inside) closeDialog(bookingDialog);
+  if (!inside) { closeDialog(bookingDialog); resetBookingDialog(); }
 });
+bookingDialog?.addEventListener('close', resetBookingDialog);
 
 document.querySelectorAll('[data-intent]').forEach(btn => {
   btn.addEventListener('click', () => {
+    resetBookingDialog();
     openDialog(bookingDialog);
     const select = bookingForm?.querySelector('select[name="intent"]');
     if (select) select.value = btn.dataset.intent || 'No estoy seguro/a';
@@ -75,16 +88,21 @@ bookingForm?.addEventListener('submit', (e) => {
     createdAt: new Date().toISOString().slice(0, 10)
   });
   setCRMData(data);
-  closeDialog(bookingDialog);
+  const message = encodeURIComponent(`Hola, soy ${payload.name}. Acabo de solicitar una valoración por ${payload.intent}${payload.preferredDate ? ` para el ${payload.preferredDate}` : ''}.`);
+  continueWhatsAppBtn.href = `https://wa.me/593992459649?text=${message}`;
   bookingForm.reset();
-  showToast('Solicitud guardada en la demo del CRM.');
+  bookingFormStep.hidden = true;
+  bookingSuccess.hidden = false;
+  bookingStatus.textContent = 'Solicitud guardada en la demo local. Puedes continuar a WhatsApp con un mensaje preparado.';
+  continueWhatsAppBtn?.focus();
+  showToast('Solicitud guardada en la demo local.');
 });
 
-continueWhatsAppBtn?.addEventListener('click', () => {
-  const name = bookingForm?.elements?.name?.value || '';
-  const intent = bookingForm?.elements?.intent?.value || 'una valoración';
-  const msg = encodeURIComponent(`Hola, soy ${name || 'un paciente'}. Quiero información sobre ${intent}.`);
-  window.open(`https://wa.me/593992459649?text=${msg}`, '_blank');
-});
+const revealObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+  });
+}, { threshold: 0.12 }) : null;
+document.querySelectorAll('.reveal-section').forEach(section => revealObserver ? revealObserver.observe(section) : section.classList.add('is-visible'));
 
 getCRMData();

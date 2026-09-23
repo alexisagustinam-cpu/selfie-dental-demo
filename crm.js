@@ -17,11 +17,11 @@ const seedData = {
     { id: 'LD-1004', name: 'Pamela S.', phone: '0952223344', intent: 'Restauración dental', stage: 'followup', notes: 'Está esperando confirmación de horario.', createdAt: '2026-09-22' },
   ],
   appointments: [
-    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'WhatsApp' },
+    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'Registro demo' },
     { id: 'AP-2002', patient: 'María José P.', service: 'Diseño de sonrisa', date: '2026-09-25', time: '16:00', status: 'Pendiente', channel: 'Web' }
   ],
   tasks: [
-    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Enviar recordatorio por WhatsApp.' },
+    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Preparar el recordatorio para enviar por el canal elegido.' },
     { id: 'TK-3002', title: 'Seguimiento a Pamela', owner: 'Asistente', due: '2026-09-24', priority: 'Media', detail: 'Consultar disponibilidad para restauración.' }
   ]
 };
@@ -57,15 +57,15 @@ function closeDialog(id) { $(id)?.close(); }
 document.querySelectorAll('[data-close-dialog]').forEach(btn => btn.addEventListener('click', () => closeDialog(btn.dataset.closeDialog)));
 
 function renderMetrics() {
-  const total = state.leads.length;
+  const newLeads = state.leads.filter(l => l.stage === 'new').length;
+  const awaitingResponse = state.leads.filter(l => l.stage === 'contacted').length;
   const scheduled = state.leads.filter(l => l.stage === 'scheduled').length;
-  const attended = state.leads.filter(l => l.stage === 'attended' || l.stage === 'closed').length;
-  const tasks = state.tasks.length;
+  const followups = state.leads.filter(l => l.stage === 'followup').length + state.tasks.length;
   $('metricsRow').innerHTML = [
-    ['Leads totales', total, 'Pacientes captados en la demo'],
-    ['Citas agendadas', scheduled, 'En espera de atención'],
-    ['Pacientes avanzados', attended, 'Atendidos o cerrados'],
-    ['Seguimientos', tasks, 'Tareas pendientes del equipo'],
+    ['Nuevos', newLeads, 'Solicitudes que revisar primero'],
+    ['Esperando respuesta', awaitingResponse, 'Conversaciones por retomar'],
+    ['Citas', scheduled, 'Por confirmar o atender'],
+    ['Seguimientos', followups, 'Acciones pendientes del equipo'],
   ].map(([label,val,sub]) => `<article><small>${label}</small><strong>${val}</strong><span>${sub}</span></article>`).join('');
 }
 
@@ -95,9 +95,15 @@ function renderLeadDetail() {
     return;
   }
   box.className = 'detail-card';
+  const action = lead.stage === 'new' ? ['contacted', 'Registrar primer contacto'] :
+    lead.stage === 'contacted' ? ['scheduled', 'Proponer cita'] :
+    lead.stage === 'scheduled' ? ['attended', 'Registrar atención'] :
+    lead.stage === 'attended' ? ['followup', 'Crear seguimiento'] :
+    lead.stage === 'followup' ? ['closed', 'Cerrar seguimiento'] : ['closed', 'Caso cerrado'];
   box.innerHTML = `
     <span>${lead.id}</span>
     <h3>${lead.name}</h3>
+    <p class="next-action-label">Prioridad: ${action[1]}</p>
     <div class="detail-list">
       <div class="detail-row"><span>WhatsApp</span><strong>${lead.phone}</strong></div>
       <div class="detail-row"><span>Necesidad</span><strong>${lead.intent}</strong></div>
@@ -106,9 +112,9 @@ function renderLeadDetail() {
       <div class="detail-row"><span>Notas</span><strong>${lead.notes || 'Sin notas'}</strong></div>
     </div>
     <div class="detail-actions">
-      <button data-move="contacted">Marcar contactado</button>
-      <button data-move="scheduled">Agendar cita</button>
-      <button data-move="closed">Cerrar</button>
+      <button class="primary-action" data-move="${action[0]}">${action[1]}</button>
+      <button data-move="followup">Crear seguimiento</button>
+      <button data-move="closed">Cerrar caso</button>
     </div>`;
   box.querySelectorAll('[data-move]').forEach(btn => btn.addEventListener('click', () => updateLeadStage(lead.id, btn.dataset.move)));
 }
@@ -117,7 +123,7 @@ function updateLeadStage(id, stage) {
   state.leads = state.leads.map(l => l.id === id ? { ...l, stage } : l);
   setData(state);
   renderAll();
-  showToast('Lead actualizado.');
+  showToast('Estado actualizado en la demo local.');
 }
 
 function renderPipeline() {
@@ -217,8 +223,8 @@ function switchView(view) {
   document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
   $(`${view}View`).classList.remove('hidden');
   $('viewTitle').textContent = {
-    dashboard:'Dashboard', pipeline:'Pipeline', appointments:'Citas', tasks:'Seguimientos', analytics:'Analítica', settings:'Ajustes'
-  }[view] || 'Dashboard';
+    dashboard:'Prioridades de hoy', pipeline:'Pipeline', appointments:'Citas', tasks:'Seguimientos', analytics:'Analítica', settings:'Ajustes'
+  }[view] || 'Prioridades de hoy';
   document.querySelectorAll('.side-item').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
 }
 

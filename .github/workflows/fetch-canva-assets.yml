@@ -1,0 +1,38 @@
+name: Fetch Selfie Dental assets
+on:
+  push:
+    branches: [v4-upload]
+    paths: ['.github/workflows/fetch-canva-assets.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v4-upload
+      - name: Fetch high resolution images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          HERO='https://media.canva.com/v2/image-resize/format:JPG/height:810/quality:90/uri:ifs%3A%2F%2FM%2F7fcfe620-3d7f-4d67-9bc4-a641cafb695a/watermark:F/width:1440?csig=AAAAAAAAAAAAAAAAAAAAAK5uuPRUTkdk4wm1toXqOLWd4s3tjqWYDX7ifNDtQryx&exp=1790162486&osig=AAAAAAAAAAAAAAAAAAAAAAWTvLjpSzZGmsCrL1s6MkBarT3VBeMIGtZiayCGIbHo&signer=media-rpc&x-canva-quality=thumbnail'
+          GALLERY='https://media.canva.com/v2/image-resize/format:JPG/height:675/quality:90/uri:ifs%3A%2F%2FM%2F6616e9d8-0c60-431c-a696-b415d271950e/watermark:F/width:900?csig=AAAAAAAAAAAAAAAAAAAAADcy76G6vDZYzxzvb6DfXtdhZtC0u4XFyjH1mEWfeMrn&exp=1790163222&osig=AAAAAAAAAAAAAAAAAAAAAAp2aZHGiCUakhVcf8g65WJQ182KQQI3O7ES3mgRa589&signer=media-rpc&x-canva-quality=thumbnail'
+          curl -fL "$HERO" -o assets/hero-v4.jpg
+          curl -fL "$GALLERY" -o assets/gallery-v4.jpg
+          python - <<'PY'
+          from PIL import Image
+          for p in ['assets/hero-v4.jpg','assets/gallery-v4.jpg']:
+              im=Image.open(p)
+              print(p, im.size, im.format)
+              assert im.width >= 900, (p, im.size)
+          PY
+      - name: Commit images
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/hero-v4.jpg assets/gallery-v4.jpg
+          git commit -m 'Add optimized V4 website images' || exit 0
+          git push origin v4-upload

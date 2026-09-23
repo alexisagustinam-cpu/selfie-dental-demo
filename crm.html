@@ -1,1 +1,212 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CRM funcional demo para Selfie Dental"><title>CRM · Selfie Dental</title><link rel="stylesheet" href="styles.css"></head><body class="crm-body"><div class="crm-banner">CRM funcional demo · leads, citas, tareas, analítica y ajustes guardados en este navegador</div><div class="crm-layout"><aside class="crm-sidebar"><div class="crm-brand"><img src="assets/logo.webp" alt="Selfie Dental"><span>Selfie Dental CRM</span></div><nav><button class="side-item active" data-view="dashboard"><span class="side-icon">◫</span><span>Dashboard</span></button><button class="side-item" data-view="pipeline"><span class="side-icon">◎</span><span>Pipeline</span></button><button class="side-item" data-view="leads"><span class="side-icon">☰</span><span>Leads</span></button><button class="side-item" data-view="appointments"><span class="side-icon">◷</span><span>Citas</span></button><button class="side-item" data-view="tasks"><span class="side-icon">✓</span><span>Seguimientos</span></button><button class="side-item" data-view="analytics"><span class="side-icon">◔</span><span>Analítica</span></button><button class="side-item" data-view="settings"><span class="side-icon">⚙</span><span>Ajustes</span></button></nav><div class="side-bottom"><a href="index.html">← Volver a la web</a><p>Las solicitudes creadas en la landing aparecen aquí.</p></div></aside><main class="crm-main"><div class="crm-topbar"><div><p id="crmCaption">Panel operativo</p><h1 id="crmTitle">Dashboard</h1></div><div class="crm-actions"><button class="link-button ghost" id="openLeadBtn">Nuevo lead</button><button class="link-button ghost" id="openAppointmentBtn">Nueva cita</button><button class="link-button primary" id="openTaskBtn">Nuevo seguimiento</button></div></div><div id="crmView"></div></main></div><dialog class="booking-dialog crm-modal" id="entityDialog"><form class="booking-shell" id="entityForm"><div class="dialog-top"><div><small>Selfie Dental CRM</small><h2 id="dialogTitle">Nuevo registro</h2></div><button type="button" class="icon-close" id="closeEntityDialog">&times;</button></div><input type="hidden" name="mode"><input type="hidden" name="entityType"><input type="hidden" name="entityId"><div class="form-grid" id="entityFields"></div><div class="dialog-actions"><button type="submit" class="link-button primary large">Guardar</button><button type="button" class="link-button ghost large" id="cancelEntityDialog">Cancelar</button></div></form></dialog><div class="toast" id="crmToast"></div><script src="crm.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="CRM demo Selfie Dental" />
+  <title>CRM — Selfie Dental</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="crm-body">
+  <div class="crm-banner">Demo funcional · Selfie Dental CRM</div>
+  <div class="crm-layout">
+    <aside class="crm-sidebar">
+      <div class="crm-brand">
+        <img src="assets/logo-symbol.png" alt="Selfie Dental" />
+        <span>Selfie Dental CRM</span>
+      </div>
+      <nav>
+        <button class="side-item active" data-view="dashboard"><span>📊</span><span>Dashboard</span></button>
+        <button class="side-item" data-view="pipeline"><span>🗂️</span><span>Pipeline</span></button>
+        <button class="side-item" data-view="appointments"><span>📅</span><span>Citas</span></button>
+        <button class="side-item" data-view="tasks"><span>✅</span><span>Seguimientos</span></button>
+        <button class="side-item" data-view="analytics"><span>📈</span><span>Analítica</span></button>
+        <button class="side-item" data-view="settings"><span>⚙️</span><span>Ajustes</span></button>
+      </nav>
+      <div class="side-bottom">
+        Todo funciona con localStorage para demostrar el flujo del sistema.
+      </div>
+    </aside>
+
+    <main class="crm-main">
+      <div class="crm-topbar">
+        <div>
+          <p>Panel operativo de la propuesta</p>
+          <h1 id="viewTitle">Dashboard</h1>
+        </div>
+        <div class="crm-actions">
+          <button class="link-button ghost" id="exportDataBtn">Exportar JSON</button>
+          <button class="link-button ghost" id="seedDemoBtn">Restaurar demo</button>
+          <button class="link-button primary" id="newLeadBtn">Nuevo lead</button>
+        </div>
+      </div>
+
+      <section id="dashboardView" class="view-section">
+        <div class="metrics-row" id="metricsRow"></div>
+        <div class="crm-bottom-grid">
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Leads recientes</h2></div>
+            <div id="recentLeads" class="lead-table"></div>
+          </section>
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Detalle</h2></div>
+            <div id="leadDetail" class="empty-detail"><strong>Selecciona un lead</strong><span>Haz clic en cualquier lead para ver su detalle.</span></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="pipelineView" class="view-section hidden">
+        <section class="crm-section">
+          <div class="crm-section-head"><h2>Pipeline de pacientes</h2></div>
+          <div id="pipelineBoard" class="pipeline"></div>
+        </section>
+      </section>
+
+      <section id="appointmentsView" class="view-section hidden">
+        <section class="crm-section">
+          <div class="crm-section-head">
+            <h2>Citas agendadas</h2>
+            <button class="link-button ghost" id="newAppointmentBtn">Nueva cita</button>
+          </div>
+          <div id="appointmentsTable"></div>
+        </section>
+      </section>
+
+      <section id="tasksView" class="view-section hidden">
+        <section class="crm-section">
+          <div class="crm-section-head">
+            <h2>Seguimientos y tareas</h2>
+            <button class="link-button ghost" id="newTaskBtn">Nueva tarea</button>
+          </div>
+          <div id="tasksList" class="task-list"></div>
+        </section>
+      </section>
+
+      <section id="analyticsView" class="view-section hidden">
+        <div class="full-width-grid crm-bottom-grid">
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Conversión por etapa</h2></div>
+            <div id="analyticsBars" class="bar-list"></div>
+          </section>
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Resumen</h2></div>
+            <div id="analyticsSummary" class="detail-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="settingsView" class="view-section hidden">
+        <div class="full-width-grid crm-bottom-grid">
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Canales conectados</h2></div>
+            <div class="detail-list">
+              <div class="detail-row"><span>Sitio web</span><strong>Activo</strong></div>
+              <div class="detail-row"><span>WhatsApp</span><strong>Listo para integrar</strong></div>
+              <div class="detail-row"><span>Base de pacientes</span><strong>Demo local</strong></div>
+            </div>
+            <p class="helper-text">Aquí podrían ir integraciones reales con WhatsApp, usuarios, permisos, recordatorios y automatizaciones.</p>
+          </section>
+          <section class="crm-section">
+            <div class="crm-section-head"><h2>Acciones rápidas</h2></div>
+            <div class="settings-actions">
+              <button class="link-button ghost" id="clearStorageBtn">Vaciar localStorage</button>
+              <a class="link-button ghost" href="index.html">Volver a la web</a>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="booking-dialog crm-modal" id="leadDialog">
+    <div class="booking-shell">
+      <div class="dialog-top">
+        <div><small>Lead</small><h2>Crear nuevo lead</h2></div>
+        <button class="icon-close" type="button" data-close-dialog="leadDialog">×</button>
+      </div>
+      <form id="leadForm" class="form-grid">
+        <label>Nombre<input name="name" required type="text" /></label>
+        <label>WhatsApp<input name="phone" required type="tel" /></label>
+        <label>Necesidad
+          <select name="intent">
+            <option>Diseño de sonrisa</option>
+            <option>Ortodoncia</option>
+            <option>Limpieza dental</option>
+            <option>Restauración dental</option>
+            <option>Odontopediatría</option>
+            <option>Valoración por molestia</option>
+          </select>
+        </label>
+        <label>Etapa
+          <select name="stage">
+            <option value="new">Nuevo</option>
+            <option value="contacted">Contactado</option>
+            <option value="scheduled">Cita agendada</option>
+            <option value="attended">Atendido</option>
+            <option value="followup">Seguimiento</option>
+            <option value="closed">Cerrado</option>
+          </select>
+        </label>
+        <label class="wide">Notas<textarea name="notes" rows="4"></textarea></label>
+        <div class="wide dialog-actions"><button class="link-button primary" type="submit">Guardar lead</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="booking-dialog crm-modal" id="appointmentDialog">
+    <div class="booking-shell">
+      <div class="dialog-top">
+        <div><small>Cita</small><h2>Agendar cita</h2></div>
+        <button class="icon-close" type="button" data-close-dialog="appointmentDialog">×</button>
+      </div>
+      <form id="appointmentForm" class="form-grid">
+        <label>Paciente<input name="patient" required type="text" /></label>
+        <label>Servicio<input name="service" required type="text" /></label>
+        <label>Fecha<input name="date" required type="date" /></label>
+        <label>Hora<input name="time" required type="time" /></label>
+        <label>Estado
+          <select name="status">
+            <option>Confirmada</option>
+            <option>Pendiente</option>
+            <option>Completada</option>
+          </select>
+        </label>
+        <label>Canal
+          <select name="channel">
+            <option>Web</option>
+            <option>WhatsApp</option>
+            <option>Manual</option>
+          </select>
+        </label>
+        <div class="wide dialog-actions"><button class="link-button primary" type="submit">Guardar cita</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="booking-dialog crm-modal" id="taskDialog">
+    <div class="booking-shell">
+      <div class="dialog-top">
+        <div><small>Seguimiento</small><h2>Nueva tarea</h2></div>
+        <button class="icon-close" type="button" data-close-dialog="taskDialog">×</button>
+      </div>
+      <form id="taskForm" class="form-grid">
+        <label>Título<input name="title" required type="text" /></label>
+        <label>Responsable<input name="owner" required type="text" /></label>
+        <label>Fecha límite<input name="due" required type="date" /></label>
+        <label>Prioridad
+          <select name="priority">
+            <option>Alta</option>
+            <option>Media</option>
+            <option>Baja</option>
+          </select>
+        </label>
+        <label class="wide">Detalle<textarea name="detail" rows="4"></textarea></label>
+        <div class="wide dialog-actions"><button class="link-button primary" type="submit">Guardar tarea</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="crm.js"></script>
+</body>
+</html>

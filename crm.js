@@ -1,26 +1,268 @@
-const K='selfieDentalDB',$=s=>document.querySelector(s),V=$('#crmView'),T=$('#crmTitle'),C=$('#crmCaption'),D=$('#entityDialog'),F=$('#entityForm'),Fields=$('#entityFields'),Toast=$('#crmToast');
-const stages=['Nuevo','Contactado','Cita solicitada','Confirmado','Atendido','Seguimiento'];let view='dashboard',selected='';
-const seed={leads:[
-{id:'d1',name:'María P.',phone:'099 000 0101',intent:'Diseño de sonrisa',preferredDate:'2026-09-25',time:'Tarde',firstVisit:'Sí',notes:'Solicita información inicial.',status:'Nuevo',source:'Instagram',createdAt:'2026-09-22T17:20:00'},
-{id:'d2',name:'Carlos R.',phone:'099 000 0102',intent:'Ortodoncia',preferredDate:'2026-09-26',time:'Mañana',firstVisit:'Sí',notes:'Prefiere horario por la mañana.',status:'Contactado',source:'Facebook',createdAt:'2026-09-22T15:10:00'},
-{id:'d3',name:'Andrea V.',phone:'099 000 0103',intent:'Limpieza dental',preferredDate:'2026-09-24',time:'Tarde',firstVisit:'Sí',notes:'Primera visita.',status:'Cita solicitada',source:'Google',createdAt:'2026-09-21T18:40:00'},
-{id:'d4',name:'José L.',phone:'099 000 0104',intent:'Restauración dental',preferredDate:'2026-09-23',time:'Tarde',firstVisit:'No',notes:'Cita pendiente de atención.',status:'Confirmado',source:'Recomendación',createdAt:'2026-09-21T13:05:00'}],appointments:[{id:'a1',leadId:'d4',title:'Valoración restauración',date:'2026-09-23',time:'16:30',status:'Confirmada',dentist:'Dra. Aibyl',notes:''},{id:'a2',leadId:'d3',title:'Limpieza dental',date:'2026-09-24',time:'15:00',status:'Pendiente',dentist:'Dra. Aibyl',notes:''}],tasks:[{id:'t1',leadId:'d1',title:'Responder solicitud de diseño de sonrisa',dueDate:'2026-09-23',priority:'Alta',status:'Pendiente',type:'Seguimiento'},{id:'t2',leadId:'d2',title:'Enviar opciones de horario',dueDate:'2026-09-23',priority:'Media',status:'En proceso',type:'WhatsApp'}],interactions:[],settings:{clinic:'Selfie Dental',phone:'099 245 9649',address:'Juan de la Roca y Pje. 8, Ibarra',owner:'Dra. Aibyl Guerrero'}};
-const clone=o=>JSON.parse(JSON.stringify(o)),id=p=>p+Math.random().toString(36).slice(2,9),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function db(){let x;try{x=JSON.parse(localStorage.getItem(K))}catch{}if(!x){x=clone(seed);localStorage.setItem(K,JSON.stringify(x))}x.leads??=[];x.appointments??=[];x.tasks??=[];x.interactions??=[];x.settings={...seed.settings,...(x.settings||{})};return x}function save(x){localStorage.setItem(K,JSON.stringify(x))}function msg(s){Toast.textContent=s;Toast.classList.add('show');setTimeout(()=>Toast.classList.remove('show'),2200)}
-const lead=i=>db().leads.find(x=>x.id==i),count=(a,k)=>a.reduce((o,x)=>(o[x[k]||'Sin dato']=(o[x[k]||'Sin dato']||0)+1,o),{}),pill=s=>`<span class="status-pill">${esc(s)}</span>`;
-function row(l){return`<div class="lead-row" data-lead="${esc(l.id)}"><strong>${esc(l.name)}</strong><span>${esc(l.intent)}</span><span>${esc(l.source)}</span>${pill(l.status)}</div>`}function bars(o){let e=Object.entries(o),m=Math.max(1,...e.map(x=>x[1]));return e.map(([k,n])=>`<div class="bar-item"><div class="bar-label"><span>${esc(k)}</span><strong>${n}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${n/m*100}%"></div></div></div>`).join('')}
-function dashboard(){let x=db(),open=x.tasks.filter(t=>t.status!='Completada').length,conf=x.appointments.filter(a=>a.status=='Confirmada').length;V.innerHTML=`<section class="metrics-row"><article><small>Leads totales</small><strong>${x.leads.length}</strong><span>registrados</span></article><article><small>Nuevos</small><strong>${x.leads.filter(l=>l.status=='Nuevo').length}</strong><span>por contactar</span></article><article><small>Citas confirmadas</small><strong>${conf}</strong><span>agenda activa</span></article><article><small>Seguimientos</small><strong>${open}</strong><span>pendientes</span></article></section><section class="crm-bottom-grid"><div class="crm-section"><div class="crm-section-head"><div><p class="kicker">Actividad</p><h2>Leads recientes</h2></div></div><div class="lead-table">${x.leads.slice(0,8).map(row).join('')}</div></div><div class="crm-section"><div class="crm-section-head"><div><p class="kicker">Próximas acciones</p><h2>Tareas</h2></div></div><div class="task-list">${x.tasks.slice(0,6).map(taskHtml).join('')}</div></div></section><section class="crm-bottom-grid"><div class="crm-section"><div class="crm-section-head"><h2>Origen de leads</h2></div><div class="bar-list">${bars(count(x.leads,'source'))}</div></div><div class="crm-section"><div class="crm-section-head"><h2>Embudo</h2></div><div class="bar-list">${bars(count(x.leads,'status'))}</div></div></section>`;bindLeads()}
-function pipeline(){let x=db();V.innerHTML=`<section class="crm-section"><div class="crm-section-head"><div><p class="kicker">Pipeline</p><h2>Solicitudes y citas</h2></div></div><div class="pipeline">${stages.map(s=>`<div class="pipeline-col"><div class="pipeline-title"><span>${s}</span><span class="count-badge">${x.leads.filter(l=>l.status==s).length}</span></div>${x.leads.filter(l=>l.status==s).map(l=>`<div class="lead-card"><strong>${esc(l.name)}</strong><p>${esc(l.intent)}</p><div class="lead-meta"><span>${esc(l.source)}</span><span>${esc(l.time)}</span></div><div class="card-actions"><button class="mini-button" data-open="${l.id}">Ver</button><button class="mini-button" data-next="${l.id}">Avanzar</button></div></div>`).join('')||'<div class="empty-mini">Sin registros</div>'}</div>`).join('')}</div></section><section class="crm-section top-gap" id="detail"><div class="empty-detail"><strong>Selecciona un lead</strong><span>Verás aquí su ficha y acciones.</span></div></section>`;document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>detail(b.dataset.open));document.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>next(b.dataset.next))}
-function leads(){let x=db();V.innerHTML=`<section class="crm-section"><div class="crm-section-head"><div><p class="kicker">Contactos</p><h2>Leads y pacientes</h2></div><input class="search-input" id="search" placeholder="Buscar nombre, teléfono o servicio"></div><div class="lead-table" id="leadTable">${x.leads.map(row).join('')}</div></section><section class="crm-section top-gap" id="detail"><div class="empty-detail"><strong>Selecciona un lead</strong><span>Podrás editarlo, crear una cita o moverlo de estado.</span></div></section>`;bindLeads();$('#search').oninput=e=>{let q=e.target.value.toLowerCase(),r=x.leads.filter(l=>Object.values(l).join(' ').toLowerCase().includes(q));$('#leadTable').innerHTML=r.map(row).join('');bindLeads()}}
-function detail(i){selected=i;let x=db(),l=x.leads.find(v=>v.id==i),a=x.appointments.filter(v=>v.leadId==i),t=x.tasks.filter(v=>v.leadId==i),p=$('#detail');if(!l||!p)return;p.innerHTML=`<p class="kicker">Perfil</p><div class="detail-card"><h3>${esc(l.name)}</h3><span>${esc(l.intent)} · ${esc(l.phone)}</span><div class="detail-list"><div class="detail-row"><span>Estado</span><strong>${esc(l.status)}</strong></div><div class="detail-row"><span>Origen</span><strong>${esc(l.source)}</strong></div><div class="detail-row"><span>Horario</span><strong>${esc(l.time)}</strong></div><div class="detail-row"><span>Fecha tentativa</span><strong>${esc(l.preferredDate||'—')}</strong></div><div class="detail-row"><span>Notas</span><strong>${esc(l.notes||'Sin notas')}</strong></div></div><div class="detail-actions triple-actions"><button data-next="${i}">Avanzar</button><button data-edit="${i}">Editar</button><button data-appt="${i}">Crear cita</button></div><div class="detail-subsection"><strong>Citas</strong>${a.map(v=>`<div class="sub-row">${v.date} · ${v.time} · ${v.status}</div>`).join('')||'<div class="sub-row">Sin citas</div>'}</div><div class="detail-subsection"><strong>Seguimientos</strong>${t.map(v=>`<div class="sub-row">${esc(v.title)} · ${v.status}</div>`).join('')||'<div class="sub-row">Sin tareas</div>'}</div></div>`;p.querySelector('[data-next]').onclick=()=>next(i);p.querySelector('[data-edit]').onclick=()=>openForm('lead',i);p.querySelector('[data-appt]').onclick=()=>openForm('appointment','',i)}
-function appointments(){let x=db();V.innerHTML=`<section class="crm-section"><div class="crm-section-head"><div><p class="kicker">Agenda</p><h2>Citas programadas</h2></div></div><div class="appointment-list">${x.appointments.map(a=>{let l=x.leads.find(z=>z.id==a.leadId);return`<article class="appointment-card"><div><strong>${esc(l?.name||'Sin lead')}</strong><span>${esc(a.title)}</span></div><div><strong>${a.date} · ${a.time}</strong>${pill(a.status)}</div><div class="table-actions"><button class="mini-button" data-aedit="${a.id}">Editar</button><button class="mini-button" data-astatus="${a.id}">Cambiar estado</button></div></article>`}).join('')||'<div class="empty-detail simple-empty">Sin citas</div>'}</div></section>`;document.querySelectorAll('[data-aedit]').forEach(b=>b.onclick=()=>openForm('appointment',b.dataset.aedit));document.querySelectorAll('[data-astatus]').forEach(b=>b.onclick=()=>cycleAppt(b.dataset.astatus))}
-function taskHtml(t){let l=lead(t.leadId);return`<article class="task-item"><div><strong>${esc(t.title)}</strong><span>${esc(l?.name||'General')} · ${esc(t.dueDate||'sin fecha')}</span></div><div class="task-pills"><span class="tiny-pill">${t.priority}</span><span class="tiny-pill">${t.status}</span></div><div class="table-actions"><button class="mini-button" data-tstatus="${t.id}">Estado</button><button class="mini-button" data-tedit="${t.id}">Editar</button></div></article>`}
-function tasks(){let x=db();V.innerHTML=`<section class="crm-section"><div class="crm-section-head"><div><p class="kicker">Seguimientos</p><h2>Tareas y próximas acciones</h2></div></div><div class="task-list">${x.tasks.map(taskHtml).join('')||'<div class="empty-detail simple-empty">Sin seguimientos</div>'}</div></section>`;document.querySelectorAll('[data-tstatus]').forEach(b=>b.onclick=()=>cycleTask(b.dataset.tstatus));document.querySelectorAll('[data-tedit]').forEach(b=>b.onclick=()=>openForm('task',b.dataset.tedit))}
-function analytics(){let x=db();V.innerHTML=`<section class="crm-bottom-grid"><div class="crm-section"><div class="crm-section-head"><h2>Origen de leads</h2></div><div class="bar-list">${bars(count(x.leads,'source'))}</div></div><div class="crm-section"><div class="crm-section-head"><h2>Interés por servicio</h2></div><div class="bar-list">${bars(count(x.leads,'intent'))}</div></div></section><section class="crm-section top-gap"><div class="crm-section-head"><h2>Estado del pipeline</h2></div><div class="bar-list">${bars(count(x.leads,'status'))}</div></section>`}
-function settings(){let x=db(),s=x.settings;V.innerHTML=`<section class="crm-bottom-grid"><div class="crm-section"><div class="crm-section-head"><h2>Datos de la clínica</h2></div><form id="settings" class="form-grid"><label>Clínica<input name="clinic" value="${esc(s.clinic)}"></label><label>Teléfono<input name="phone" value="${esc(s.phone)}"></label><label class="wide">Dirección<input name="address" value="${esc(s.address)}"></label><label>Responsable<input name="owner" value="${esc(s.owner)}"></label><button class="link-button primary" type="submit">Guardar</button></form></div><div class="crm-section"><div class="crm-section-head"><h2>Demo</h2></div><div class="settings-actions"><button class="link-button ghost" id="reset">Restablecer datos demo</button><button class="link-button ghost" id="export">Exportar JSON</button><a class="link-button ghost" href="index.html">Volver a la web</a></div></div></section>`;$('#settings').onsubmit=e=>{e.preventDefault();x.settings=Object.fromEntries(new FormData(e.target));save(x);msg('Ajustes guardados')};$('#reset').onclick=()=>{localStorage.setItem(K,JSON.stringify(clone(seed)));msg('Demo restablecida');render()};$('#export').onclick=()=>{let b=new Blob([JSON.stringify(db(),null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='selfie-dental-crm.json';a.click();URL.revokeObjectURL(u)}}
-function bindLeads(){document.querySelectorAll('[data-lead]').forEach(e=>e.onclick=()=>detail(e.dataset.lead))}function next(i){let x=db(),l=x.leads.find(v=>v.id==i);if(!l)return;let n=stages.indexOf(l.status);l.status=stages[Math.min(n+1,stages.length-1)];l.updatedAt=new Date().toISOString();save(x);msg('Lead actualizado');render()}function cycleAppt(i){let x=db(),a=x.appointments.find(v=>v.id==i),o=['Pendiente','Confirmada','Atendida','Reagendada'];a.status=o[(o.indexOf(a.status)+1)%o.length];save(x);msg('Cita actualizada');appointments()}function cycleTask(i){let x=db(),t=x.tasks.find(v=>v.id==i),o=['Pendiente','En proceso','Completada'];t.status=o[(o.indexOf(t.status)+1)%o.length];save(x);msg('Seguimiento actualizado');tasks()}
-const input=(n,l,v='',type='text')=>`<label>${l}<input name="${n}" type="${type}" value="${esc(v)}"></label>`,select=(n,l,v,o)=>`<label>${l}<select name="${n}">${o.map(x=>`<option ${x==v?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`;
-function openForm(type,eid='',related=''){let x=db(),e=type=='lead'?x.leads.find(v=>v.id==eid):type=='appointment'?x.appointments.find(v=>v.id==eid):x.tasks.find(v=>v.id==eid);F.mode.value=eid?'edit':'create';F.entityType.value=type;F.entityId.value=eid;$('#dialogTitle').textContent=(eid?'Editar ':'Nuevo ')+(type=='lead'?'lead':type=='appointment'?'cita':'seguimiento');if(type=='lead'){e=e||{name:'',phone:'',intent:'Diseño de sonrisa',source:'Web',status:'Nuevo',time:'Mañana',firstVisit:'Sí',preferredDate:'',notes:''};Fields.innerHTML=input('name','Nombre',e.name)+input('phone','WhatsApp',e.phone,'tel')+select('intent','Servicio',e.intent,['Diseño de sonrisa','Ortodoncia','Limpieza dental','Restauración dental','Endodoncia','Odontopediatría','Valoración por molestia'])+select('source','Origen',e.source,['Web','Instagram','Facebook','Google','Recomendación','WhatsApp'])+select('status','Estado',e.status,stages)+select('time','Horario',e.time,['Mañana','Tarde','Noche'])+input('preferredDate','Fecha tentativa',e.preferredDate,'date')+select('firstVisit','Primera visita',e.firstVisit,['Sí','No'])+`<label class="wide">Notas<textarea name="notes">${esc(e.notes)}</textarea></label>`}else if(type=='appointment'){e=e||{leadId:related||selected||x.leads[0]?.id||'',title:'Valoración',date:'',time:'',status:'Pendiente',dentist:'Dra. Aibyl',notes:''};Fields.innerHTML=select('leadId','Lead',e.leadId,x.leads.map(l=>l.id))+input('title','Motivo',e.title)+input('date','Fecha',e.date,'date')+input('time','Hora',e.time,'time')+select('status','Estado',e.status,['Pendiente','Confirmada','Atendida','Reagendada'])+input('dentist','Profesional',e.dentist)+`<label class="wide">Notas<textarea name="notes">${esc(e.notes)}</textarea></label>`}else{e=e||{leadId:related||selected||'',title:'',dueDate:'',priority:'Media',status:'Pendiente',type:'Seguimiento'};Fields.innerHTML=select('leadId','Lead relacionado',e.leadId,['',...x.leads.map(l=>l.id)])+input('title','Título',e.title)+input('dueDate','Fecha límite',e.dueDate,'date')+select('priority','Prioridad',e.priority,['Alta','Media','Baja'])+select('status','Estado',e.status,['Pendiente','En proceso','Completada'])+select('type','Tipo',e.type,['Seguimiento','WhatsApp','Cita','Recordatorio'])}D.showModal()}
-function saveForm(e){e.preventDefault();let fd=new FormData(F),x=db(),type=fd.get('entityType'),eid=fd.get('entityId')||id(type[0]),arr=type=='lead'?x.leads:type=='appointment'?x.appointments:x.tasks,obj=Object.fromEntries(fd.entries());delete obj.mode;delete obj.entityType;delete obj.entityId;obj.id=eid;if(type=='lead'){let old=arr.find(z=>z.id==eid);obj.createdAt=old?.createdAt||new Date().toISOString();obj.updatedAt=new Date().toISOString()}let p=arr.findIndex(z=>z.id==eid);p>=0?arr[p]=obj:arr.unshift(obj);save(x);D.close();msg('Registro guardado');render()}
-const meta={dashboard:['Dashboard','Panel operativo'],pipeline:['Pipeline','Seguimiento del embudo'],leads:['Leads','Base de contactos y solicitudes'],appointments:['Citas','Agenda y confirmaciones'],tasks:['Seguimientos','Próximas acciones'],analytics:['Analítica','Resumen del flujo'],settings:['Ajustes','Configuración de la demo']};function render(){T.textContent=meta[view][0];C.textContent=meta[view][1];({dashboard,pipeline,leads,appointments,tasks,analytics,settings}[view])()}
-document.querySelectorAll('.side-item').forEach(b=>b.onclick=()=>{document.querySelectorAll('.side-item').forEach(x=>x.classList.remove('active'));b.classList.add('active');view=b.dataset.view;render()});$('#openLeadBtn').onclick=()=>openForm('lead');$('#openAppointmentBtn').onclick=()=>openForm('appointment');$('#openTaskBtn').onclick=()=>openForm('task');$('#closeEntityDialog').onclick=$('#cancelEntityDialog').onclick=()=>D.close();F.onsubmit=saveForm;D.onclick=e=>{let r=D.getBoundingClientRect();if(!(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom))D.close()};db();render();
+const STORAGE_KEY = 'selfieDentalCRMData';
+const stageMap = {
+  new: 'Nuevo',
+  contacted: 'Contactado',
+  scheduled: 'Cita agendada',
+  attended: 'Atendido',
+  followup: 'Seguimiento',
+  closed: 'Cerrado'
+};
+const stages = Object.keys(stageMap);
+
+const seedData = {
+  leads: [
+    { id: 'LD-1001', name: 'María José P.', phone: '0992459649', intent: 'Diseño de sonrisa', stage: 'contacted', notes: 'Quiere valoración estética y consulta de costos.', createdAt: '2026-09-20' },
+    { id: 'LD-1002', name: 'Carlos A.', phone: '0981112233', intent: 'Ortodoncia', stage: 'scheduled', notes: 'Preguntó por opciones de pago.', createdAt: '2026-09-21' },
+    { id: 'LD-1003', name: 'Daniela R.', phone: '0979981122', intent: 'Limpieza dental', stage: 'new', notes: 'Primera visita.', createdAt: '2026-09-22' },
+    { id: 'LD-1004', name: 'Pamela S.', phone: '0952223344', intent: 'Restauración dental', stage: 'followup', notes: 'Está esperando confirmación de horario.', createdAt: '2026-09-22' },
+  ],
+  appointments: [
+    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'WhatsApp' },
+    { id: 'AP-2002', patient: 'María José P.', service: 'Diseño de sonrisa', date: '2026-09-25', time: '16:00', status: 'Pendiente', channel: 'Web' }
+  ],
+  tasks: [
+    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Enviar recordatorio por WhatsApp.' },
+    { id: 'TK-3002', title: 'Seguimiento a Pamela', owner: 'Asistente', due: '2026-09-24', priority: 'Media', detail: 'Consultar disponibilidad para restauración.' }
+  ]
+};
+
+function getData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData));
+    return structuredClone(seedData);
+  }
+  try { return JSON.parse(raw); }
+  catch { localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData)); return structuredClone(seedData); }
+}
+function setData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+let state = getData();
+let selectedLeadId = state.leads[0]?.id || null;
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+function $(id) { return document.getElementById(id); }
+function formatDate(date) {
+  try { return new Date(date + 'T00:00:00').toLocaleDateString('es-EC', { day:'2-digit', month:'short', year:'numeric' }); }
+  catch { return date; }
+}
+function openDialog(id) { $(id)?.showModal(); }
+function closeDialog(id) { $(id)?.close(); }
+
+document.querySelectorAll('[data-close-dialog]').forEach(btn => btn.addEventListener('click', () => closeDialog(btn.dataset.closeDialog)));
+
+function renderMetrics() {
+  const total = state.leads.length;
+  const scheduled = state.leads.filter(l => l.stage === 'scheduled').length;
+  const attended = state.leads.filter(l => l.stage === 'attended' || l.stage === 'closed').length;
+  const tasks = state.tasks.length;
+  $('metricsRow').innerHTML = [
+    ['Leads totales', total, 'Pacientes captados en la demo'],
+    ['Citas agendadas', scheduled, 'En espera de atención'],
+    ['Pacientes avanzados', attended, 'Atendidos o cerrados'],
+    ['Seguimientos', tasks, 'Tareas pendientes del equipo'],
+  ].map(([label,val,sub]) => `<article><small>${label}</small><strong>${val}</strong><span>${sub}</span></article>`).join('');
+}
+
+function renderRecentLeads() {
+  const wrap = $('recentLeads');
+  wrap.innerHTML = `
+    <div class="lead-row table-head"><span>Paciente</span><span>Necesidad</span><span>Etapa</span><span>Fecha</span></div>
+    ${state.leads.map(lead => `
+      <div class="lead-row" data-lead-id="${lead.id}">
+        <div><strong>${lead.name}</strong><span>${lead.phone}</span></div>
+        <span>${lead.intent}</span>
+        <span class="status-pill">${stageMap[lead.stage]}</span>
+        <span>${formatDate(lead.createdAt)}</span>
+      </div>`).join('')}
+  `;
+  wrap.querySelectorAll('[data-lead-id]').forEach(row => row.addEventListener('click', () => {
+    selectedLeadId = row.dataset.leadId;
+    renderLeadDetail();
+  }));
+}
+
+function renderLeadDetail() {
+  const lead = state.leads.find(l => l.id === selectedLeadId);
+  const box = $('leadDetail');
+  if (!lead) {
+    box.innerHTML = `<div class="empty-detail"><strong>Sin lead seleccionado</strong></div>`;
+    return;
+  }
+  box.className = 'detail-card';
+  box.innerHTML = `
+    <span>${lead.id}</span>
+    <h3>${lead.name}</h3>
+    <div class="detail-list">
+      <div class="detail-row"><span>WhatsApp</span><strong>${lead.phone}</strong></div>
+      <div class="detail-row"><span>Necesidad</span><strong>${lead.intent}</strong></div>
+      <div class="detail-row"><span>Etapa</span><strong>${stageMap[lead.stage]}</strong></div>
+      <div class="detail-row"><span>Fecha de ingreso</span><strong>${formatDate(lead.createdAt)}</strong></div>
+      <div class="detail-row"><span>Notas</span><strong>${lead.notes || 'Sin notas'}</strong></div>
+    </div>
+    <div class="detail-actions">
+      <button data-move="contacted">Marcar contactado</button>
+      <button data-move="scheduled">Agendar cita</button>
+      <button data-move="closed">Cerrar</button>
+    </div>`;
+  box.querySelectorAll('[data-move]').forEach(btn => btn.addEventListener('click', () => updateLeadStage(lead.id, btn.dataset.move)));
+}
+
+function updateLeadStage(id, stage) {
+  state.leads = state.leads.map(l => l.id === id ? { ...l, stage } : l);
+  setData(state);
+  renderAll();
+  showToast('Lead actualizado.');
+}
+
+function renderPipeline() {
+  $('pipelineBoard').innerHTML = stages.map(stage => {
+    const leads = state.leads.filter(l => l.stage === stage);
+    return `<div class="pipeline-col">
+      <div class="pipeline-title"><span>${stageMap[stage]}</span><span class="count-badge">${leads.length}</span></div>
+      ${leads.map(lead => `
+        <div class="lead-card">
+          <strong>${lead.name}</strong>
+          <p>${lead.intent}</p>
+          <div class="lead-meta"><span>${lead.phone}</span><span>${formatDate(lead.createdAt)}</span></div>
+          <div class="card-actions">
+            <button class="mini-button" data-open="${lead.id}">Ver</button>
+            <button class="mini-button" data-next="${lead.id}">Avanzar</button>
+          </div>
+        </div>`).join('') || `<div class="lead-card"><p>Sin pacientes en esta etapa.</p></div>`}
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => {
+    selectedLeadId = btn.dataset.open;
+    switchView('dashboard');
+    renderLeadDetail();
+  }));
+  document.querySelectorAll('[data-next]').forEach(btn => btn.addEventListener('click', () => {
+    const lead = state.leads.find(l => l.id === btn.dataset.next);
+    const idx = stages.indexOf(lead.stage);
+    const next = stages[Math.min(idx + 1, stages.length - 1)];
+    updateLeadStage(lead.id, next);
+  }));
+}
+
+function renderAppointments() {
+  const table = $('appointmentsTable');
+  table.innerHTML = `
+    <div class="table-grid table-head">
+      <span>Paciente</span><span>Servicio</span><span class="appointment-cell-extra">Fecha</span><span class="appointment-cell-extra">Hora</span><span class="appointment-cell-extra">Estado</span><span class="appointment-cell-extra">Canal</span>
+    </div>
+    ${state.appointments.map(ap => `
+      <div class="table-grid lead-row">
+        <div><strong>${ap.patient}</strong></div>
+        <span>${ap.service}</span>
+        <span class="appointment-cell-extra">${formatDate(ap.date)}</span>
+        <span class="appointment-cell-extra">${ap.time}</span>
+        <span class="appointment-cell-extra status-pill">${ap.status}</span>
+        <span class="appointment-cell-extra">${ap.channel}</span>
+      </div>`).join('')}
+  `;
+}
+
+function renderTasks() {
+  $('tasksList').innerHTML = state.tasks.map(task => `
+    <div class="task-item">
+      <div>
+        <strong>${task.title}</strong>
+        <span>${task.detail}</span>
+      </div>
+      <div class="task-pills">
+        <span class="tiny-pill">${task.owner}</span>
+        <span class="tiny-pill">${task.priority}</span>
+        <span class="tiny-pill">${formatDate(task.due)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAnalytics() {
+  const counts = stages.map(stage => ({ stage, count: state.leads.filter(l => l.stage === stage).length }));
+  const max = Math.max(...counts.map(c => c.count), 1);
+  $('analyticsBars').innerHTML = counts.map(item => `
+    <div class="bar-item">
+      <div class="bar-label"><span>${stageMap[item.stage]}</span><strong>${item.count}</strong></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(item.count/max)*100}%"></div></div>
+    </div>
+  `).join('');
+  const firstResponse = state.leads.filter(l => ['contacted','scheduled','attended','followup','closed'].includes(l.stage)).length;
+  $('analyticsSummary').innerHTML = `
+    <div class="detail-row"><span>Leads nuevos</span><strong>${counts.find(x=>x.stage==='new')?.count || 0}</strong></div>
+    <div class="detail-row"><span>Leads contactados</span><strong>${firstResponse}</strong></div>
+    <div class="detail-row"><span>Citas creadas</span><strong>${state.appointments.length}</strong></div>
+    <div class="detail-row"><span>Tareas activas</span><strong>${state.tasks.length}</strong></div>
+  `;
+}
+
+function renderAll() {
+  renderMetrics();
+  renderRecentLeads();
+  renderLeadDetail();
+  renderPipeline();
+  renderAppointments();
+  renderTasks();
+  renderAnalytics();
+}
+
+function switchView(view) {
+  document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+  $(`${view}View`).classList.remove('hidden');
+  $('viewTitle').textContent = {
+    dashboard:'Dashboard', pipeline:'Pipeline', appointments:'Citas', tasks:'Seguimientos', analytics:'Analítica', settings:'Ajustes'
+  }[view] || 'Dashboard';
+  document.querySelectorAll('.side-item').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
+}
+
+document.querySelectorAll('.side-item').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+$('newLeadBtn').addEventListener('click', () => openDialog('leadDialog'));
+$('newAppointmentBtn').addEventListener('click', () => openDialog('appointmentDialog'));
+$('newTaskBtn').addEventListener('click', () => openDialog('taskDialog'));
+$('seedDemoBtn').addEventListener('click', () => { state = structuredClone(seedData); setData(state); selectedLeadId = state.leads[0]?.id || null; renderAll(); showToast('Demo restaurada.'); });
+$('clearStorageBtn').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); state = structuredClone(seedData); setData(state); selectedLeadId = state.leads[0]?.id || null; renderAll(); showToast('LocalStorage reiniciado.'); });
+$('exportDataBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'selfie-dental-crm-demo.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+$('leadForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  state.leads.unshift({
+    id: `LD-${Date.now().toString().slice(-6)}`,
+    name: fd.get('name'), phone: fd.get('phone'), intent: fd.get('intent'), stage: fd.get('stage'), notes: fd.get('notes'), createdAt: new Date().toISOString().slice(0,10)
+  });
+  setData(state); e.target.reset(); closeDialog('leadDialog'); renderAll(); showToast('Lead guardado.');
+});
+$('appointmentForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  state.appointments.unshift({
+    id:`AP-${Date.now().toString().slice(-6)}`,
+    patient:fd.get('patient'), service:fd.get('service'), date:fd.get('date'), time:fd.get('time'), status:fd.get('status'), channel:fd.get('channel')
+  });
+  setData(state); e.target.reset(); closeDialog('appointmentDialog'); renderAll(); showToast('Cita guardada.');
+});
+$('taskForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  state.tasks.unshift({
+    id:`TK-${Date.now().toString().slice(-6)}`,
+    title:fd.get('title'), owner:fd.get('owner'), due:fd.get('due'), priority:fd.get('priority'), detail:fd.get('detail')
+  });
+  setData(state); e.target.reset(); closeDialog('taskDialog'); renderAll(); showToast('Tarea guardada.');
+});
+
+renderAll();
+switchView('dashboard');

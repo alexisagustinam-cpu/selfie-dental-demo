@@ -1,24 +1,19 @@
-# Selfie Dental — Demo v2
+# Selfie Dental Demo
 
-Prototipo funcional de la Fase 1 del sistema Selfie Dental.
+Demo comercial y funcional para Selfie Dental, Ibarra.
 
-## Incluye
-- Landing pública orientada a conversión.
-- Identidad visual basada en los activos reales compartidos.
-- Flujo “¿Qué quieres mejorar o resolver?”.
-- Formulario de solicitud de valoración.
-- Persistencia local de solicitudes (localStorage).
-- CRM demo con pipeline y ficha rápida.
-- Responsive móvil.
+## V3
+- Hero editorial con nueva dirección visual.
+- Fotografías generadas para la demo alineadas a la marca y a la Dra. Aibyl Guerrero.
+- Flujo de solicitud de valoración conectado al CRM local.
+- CRM funcional con Dashboard, Pipeline, Leads, Citas, Seguimientos, Analítica y Ajustes.
+- Persistencia de la demo mediante localStorage.
 
-## Uso
-Abre `index.html` en un navegador. Crea una solicitud y luego entra a `crm.html`.
+## Archivos
+- `index.html` — sitio público.
+- `crm.html` — panel operativo.
+- `app.js` — flujo de captación.
+- `crm.js` — lógica del CRM.
+- `styles.css` — sistema visual responsive.
 
-## Nota
-Los datos de ejemplo del CRM son simulados y están identificados como demo. No es una historia clínica ni almacena datos médicos.
-
-## Stack del prototipo
-HTML + CSS + JavaScript, deliberadamente sin backend para que pueda abrirse y mostrarse de inmediato.
-
-## Stack propuesto para producción
-Next.js + TypeScript + Tailwind CSS + Supabase/PostgreSQL + n8n + WhatsApp Business Platform + Vercel.
+> Esta versión funciona como prototipo comercial en navegador. Para producción multiusuario se debe conectar una base de datos, autenticación y las integraciones reales de WhatsApp/agenda.

@@ -1,33 +1,4 @@
-const STORAGE_KEY = 'selfieDentalCRMData';
 document.documentElement.classList.add('js');
-
-const seedData = {
-  leads: [
-    { id: 'LD-1001', name: 'María José P.', phone: '0992459649', intent: 'Diseño de sonrisa', stage: 'contacted', notes: 'Quiere valoración estética.', createdAt: '2026-09-20' },
-    { id: 'LD-1002', name: 'Carlos A.', phone: '0981112233', intent: 'Ortodoncia', stage: 'scheduled', notes: 'Preguntó por opciones de pago.', createdAt: '2026-09-21' },
-    { id: 'LD-1003', name: 'Daniela R.', phone: '0979981122', intent: 'Limpieza dental', stage: 'new', notes: 'Primera visita.', createdAt: '2026-09-22' }
-  ],
-  appointments: [
-    { id: 'AP-2001', patient: 'Carlos A.', service: 'Valoración de ortodoncia', date: '2026-09-24', time: '10:30', status: 'Confirmada', channel: 'Registro demo' }
-  ],
-  tasks: [
-    { id: 'TK-3001', title: 'Confirmar cita de Carlos', owner: 'Recepción', due: '2026-09-23', priority: 'Alta', detail: 'Preparar el recordatorio para enviar por el canal elegido.' }
-  ]
-};
-
-function getCRMData() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData));
-    return structuredClone(seedData);
-  }
-  try { return JSON.parse(raw); }
-  catch { localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData)); return structuredClone(seedData); }
-}
-
-function setCRMData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
 
 function showToast(message) {
   const toast = document.getElementById('toast');
@@ -77,7 +48,8 @@ document.querySelectorAll('[data-intent]').forEach(btn => {
 });
 
 function buildWhatsAppLink(payload) {
-  const request = `Hola, soy ${payload.name}. Solicité una valoración por ${payload.intent}. Mi fecha de preferencia es ${payload.preferredDate} y mi horario de preferencia es ${payload.time}. Entiendo que la disponibilidad debe confirmarse.`;
+  const notes = payload.notes.trim() ? ` Mis notas: ${payload.notes.trim()}.` : '';
+  const request = `Hola, soy ${payload.name.trim()}. Me gustaría solicitar una valoración por ${payload.intent}. Mi fecha de preferencia es ${payload.preferredDate} y mi horario de preferencia es ${payload.time}.${notes} Entiendo que la disponibilidad debe confirmarse con el equipo.`;
   return `https://wa.me/593992459649?text=${encodeURIComponent(request)}`;
 }
 
@@ -85,7 +57,7 @@ function setFormPending(form, isPending) {
   const button = form.querySelector('button[type="submit"]');
   if (!button) return;
   button.disabled = isPending;
-  button.textContent = isPending ? 'Guardando solicitud…' : 'Guardar solicitud';
+  button.textContent = isPending ? 'Preparando mensaje…' : 'Preparar mensaje de WhatsApp';
   button.setAttribute('aria-busy', String(isPending));
 }
 
@@ -96,28 +68,17 @@ async function submitRequest(form) {
   status.replaceChildren();
 
   if (!form.checkValidity()) {
-    error.textContent = 'Revisa los campos obligatorios y confirma la información de la demo.';
+    error.textContent = 'Revisa los campos obligatorios y confirma que entiendes cómo se prepara el mensaje.';
     form.reportValidity();
     return;
   }
 
   const payload = Object.fromEntries(new FormData(form).entries());
   setFormPending(form, true);
-  status.textContent = 'Guardando solicitud…';
+  status.textContent = 'Preparando tu mensaje de WhatsApp…';
 
   try {
-    await new Promise((resolve) => window.setTimeout(resolve, 280));
-    const data = getCRMData();
-    data.leads.unshift({
-      id: `LD-${Date.now().toString().slice(-6)}`,
-      name: payload.name.trim(),
-      phone: payload.phone.trim(),
-      intent: payload.intent,
-      stage: 'new',
-      notes: `${payload.notes || 'Sin notas'} · Fecha de preferencia: ${payload.preferredDate} · Horario de preferencia: ${payload.time} · Solicitud demo; disponibilidad pendiente de confirmar.`,
-      createdAt: new Date().toISOString().slice(0, 10)
-    });
-    setCRMData(data);
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
     const success = document.getElementById(form.dataset.successTarget);
     success?.querySelectorAll('[data-whatsapp-link]').forEach((link) => { link.href = buildWhatsAppLink(payload); });
     form.hidden = true;
@@ -126,12 +87,12 @@ async function submitRequest(form) {
       success.hidden = false;
       success.focus();
     }
-    const message = 'Solicitud guardada solo en esta demo local. La disponibilidad debe confirmarse con el equipo.';
+    const message = 'Tu mensaje está listo para enviar por WhatsApp. Este sitio no guardó tus datos.';
     status.textContent = message;
     bookingStatus.textContent = message;
-    showToast('Solicitud guardada en la demo local.');
+    showToast('Tu mensaje está listo para enviar por WhatsApp.');
   } catch (submissionError) {
-    error.textContent = 'No se pudo guardar la solicitud en este navegador. Revisa el almacenamiento local e inténtalo de nuevo.';
+    error.textContent = 'No se pudo preparar el mensaje de WhatsApp. Revisa los datos e inténtalo de nuevo.';
   } finally {
     setFormPending(form, false);
   }
@@ -150,5 +111,3 @@ const revealObserver = 'IntersectionObserver' in window ? new IntersectionObserv
   });
 }, { threshold: 0.12 }) : null;
 document.querySelectorAll('.reveal-section').forEach(section => revealObserver ? revealObserver.observe(section) : section.classList.add('is-visible'));
-
-getCRMData();

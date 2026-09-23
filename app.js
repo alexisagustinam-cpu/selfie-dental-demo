@@ -1,45 +1,6 @@
-const dialog = document.getElementById('bookingDialog');
-const form = document.getElementById('bookingForm');
-const toast = document.getElementById('toast');
-
-function openBooking(intent='') {
-  if (intent) form.elements.intent.value = intent;
-  dialog.showModal();
-  setTimeout(() => form.elements.name.focus(), 50);
-}
-function closeBooking(){ dialog.close(); }
-
-document.querySelectorAll('[data-open-booking]').forEach(btn => btn.addEventListener('click', () => openBooking()));
-document.querySelectorAll('[data-close-booking]').forEach(btn => btn.addEventListener('click', closeBooking));
-document.querySelectorAll('[data-intent]').forEach(btn => btn.addEventListener('click', () => openBooking(btn.dataset.intent)));
-
-dialog.addEventListener('click', (event) => {
-  const rect = dialog.getBoundingClientRect();
-  const isInDialog = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
-  if (!isInDialog) closeBooking();
-});
-
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const fd = new FormData(form);
-  const lead = {
-    id: Date.now(),
-    name: fd.get('name'),
-    phone: fd.get('phone'),
-    intent: fd.get('intent'),
-    time: fd.get('time'),
-    firstVisit: fd.get('firstVisit'),
-    notes: fd.get('notes'),
-    status: 'Nuevo',
-    source: 'Web demo',
-    createdAt: new Date().toISOString()
-  };
-  const leads = JSON.parse(localStorage.getItem('selfieDentalLeads') || '[]');
-  leads.unshift(lead);
-  localStorage.setItem('selfieDentalLeads', JSON.stringify(leads));
-  dialog.close();
-  form.reset();
-  toast.innerHTML = `Solicitud guardada en la demo. <a href="crm.html" style="color:#e6cfe8;text-decoration:underline">Ver en CRM</a>`;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 5200);
-});
+const dialog=document.getElementById('bookingDialog');const form=document.getElementById('bookingForm');const toast=document.getElementById('toast');const DB_KEY='selfieDentalDB';
+function uid(p='id'){return`${p}-${Math.random().toString(36).slice(2,8)}-${Date.now().toString(36)}`}function nowIso(){return new Date().toISOString()}function readDB(){const r=localStorage.getItem(DB_KEY);if(r){try{return JSON.parse(r)}catch{}}const d={leads:[],appointments:[],tasks:[],interactions:[],settings:{clinic:'Selfie Dental',phone:'099 245 9649',address:'Juan de la Roca y Pje. 8, Ibarra'}};localStorage.setItem(DB_KEY,JSON.stringify(d));return d}function writeDB(d){localStorage.setItem(DB_KEY,JSON.stringify(d))}
+function openBooking(intent=''){if(intent)form.elements.intent.value=intent;dialog.showModal();setTimeout(()=>form.elements.name.focus(),50)}function closeBooking(){dialog.close()}
+document.querySelectorAll('[data-open-booking]').forEach(b=>b.addEventListener('click',()=>openBooking()));document.querySelectorAll('[data-close-booking]').forEach(b=>b.addEventListener('click',closeBooking));document.querySelectorAll('[data-intent]').forEach(b=>b.addEventListener('click',()=>openBooking(b.dataset.intent)));
+dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect(),inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;if(!inside)closeBooking()});
+form.addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(form),db=readDB(),leadId=uid('lead'),lead={id:leadId,name:fd.get('name'),phone:fd.get('phone'),intent:fd.get('intent'),preferredDate:fd.get('preferredDate')||'',time:fd.get('time'),firstVisit:fd.get('firstVisit'),notes:fd.get('notes')||'',status:'Nuevo',source:'Web',createdAt:nowIso(),updatedAt:nowIso(),owner:'Recepción',tags:['nuevo lead']};db.leads.unshift(lead);db.tasks.unshift({id:uid('task'),leadId,title:`Contactar a ${lead.name}`,dueDate:lead.preferredDate||nowIso().slice(0,10),priority:'Alta',status:'Pendiente',type:'Seguimiento',createdAt:nowIso()});db.interactions.unshift({id:uid('int'),leadId,type:'Solicitud web',summary:`${lead.name} solicitó valoración para ${lead.intent}`,date:nowIso()});writeDB(db);dialog.close();form.reset();toast.innerHTML='Solicitud guardada en el CRM. <a href="crm.html" style="color:#eadff0;text-decoration:underline">Abrir CRM</a>';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),5200)});
